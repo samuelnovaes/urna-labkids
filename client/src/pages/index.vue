@@ -52,6 +52,13 @@
 				<v-icon>close</v-icon>
 			</v-btn>
 		</v-snackbar>
+		<v-dialog v-model="loading" max-width="290" persistent>
+			<v-card>
+				<v-container>
+					<v-progress-linear indeterminate></v-progress-linear>
+				</v-container>
+			</v-card>
+		</v-dialog>
 	</div>
 </template>
 
@@ -64,17 +71,21 @@ export default {
 			cursos: [],
 			escolhido: null,
 			errorMsg: '',
-			error: false
+			error: false,
+			loading: false
 		}
 	},
 	mounted() {
+		this.loading = true
 		axios.get('/api/cursos').then(response => {
 			this.cursos = response.data
 			this.step = 1
+			this.loading = false
 		})
 	},
 	methods: {
 		escolher() {
+			this.loading = true
 			axios.put(`/api/alunos/${this.escolhido}/votos`)
 				.then(() => {
 					this.step++
@@ -82,6 +93,9 @@ export default {
 				.catch(err => {
 					this.errorMsg = err.response.data
 					this.error = true
+				})
+				.finally(() => {
+					this.loading = false
 				})
 		}
 	}
